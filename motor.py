@@ -1,24 +1,17 @@
-import serial
+import sys, serial
+from serial.tools import list_ports
 from time import sleep
 
-class Motor:
-  
-  def __init__(self, ADDR=1, BaudRate=19200, ioPORT='/dev/ttyUSB0', DEBUG=False):
-    self.N,     self.ioPORT  = int(ADDR)&0xFF, ioPORT
-    self.DEBUG, self.timeout = DEBUG, 0.1
-    self.ioRATE = { 1200:0, 2400:1, 4800:2, 9600:3, 19200:4, 38400:5, 57600:6 }
-    self.BR = BaudRate
-    self.START, self.STOP, self.SHIFT = chr(0xAA), chr(0xAB), chr(0xAC)
 
-  def Configuration_Byte(self,CFG):
-    B0 = 0 if ('4'    in CFG['Mode']) else 1
-    B2 = 0 if ('Closed' in CFG['K-']) else 1
-    B3 = 0 if ('Closed' in CFG['K+']) else 1
-    B4 = 0 if ('Closed' in CFG['K0']) else 1
-    B5 = int(CFG['Soft_Trailers'])
-    B6 = int(CFG['Leave_Trailer'])
-    B7 = int(CFG['Accl_On_Leave'])
-    return B0 + B2*4 + B3*8 + B4*16 + B5*32 + B6*64 + B7*128
+class Motor:
+  START, STOP, SHIFT = 0xAA, 0xAB, 0xAC
+  ioRates = [1200, 2400, 4800, 9600, 19200, 38400, 57600]
+  Ilimits = [0.0, 0.2, 0.3, 0.5, 0.6, 1.0, 2.0, 3.5]
+  ioPorts = [port for n, (port, desc, hwid) in enumerate(list_ports.comports(), 1)]
+  def __init__(self, ADDR=1, BaudRate=19200, ioPORT='/dev/ttyUSB0', DEBUG=True):
+    if not len(self.ioPorts): print('No serial ports found!', file=sys.stderr)
+    self.N,     self.ioPort, self.ioRate  = int(ADDR)&0xFF, ioPORT, BaudRate
+    self.DEBUG, self.timeout = DEBUG, 0.1
     
   def Status_Byte(self,R):
     self.BS = { 
@@ -31,10 +24,10 @@ class Motor:
          "Move" : (R[1]>>1)&1, 
          "Ready":  R[1]&1}
   
-  def Set_Logical_Address(self,SN):  # ...................................................Command "0"
-#    packet = '\x00\xAAWS' + chr(SN&0xFF00) + chr(SN&0xFF) + chr(self.ioRATE[self.BR]) + chr(self.N) 
-    packet = '\x00\xAAWS' + chr((SN>>8)&0xFF) + chr(SN&0xFF) + chr(self.ioRATE[self.BR]) + chr(self.N) 
-    ser = serial.Serial(self.ioPORT, 600, timeout=5) 
+  def Set_Logical_Address(self, SN):  # ..................................................Command "0"
+    packet = bytes([0x00, 0xAA, ord('W'), ord('S'), SN>>8&0xFF, SN&0xFF, self.ioRates.index(self.ioRate), self.N])
+    print(packet)
+    ser = serial.Serial(self.ioPort, 600, timeout=5) 
     ser.write(packet)
     ser.close()
     
@@ -42,38 +35,38 @@ class Motor:
     
   def Get_Device_Info(self):   # .........................................................Command 1 *
     self.reply_length=8
-    R=self.__Exchange([1])
+    R = self.__Exchange([1])
     return {"Version":str(R[3])+'.'+str(R[4]), "S/N":(R[5]<<8) + R[6]}
 
   def Repeat_Last_Answer(self):   # ......................................................Command 2 *
-    R=self.__Exchange([2])
+    R = self.__Exchange([2])
     
   def Get_Device_Status(self): # .........................................................Command 3 *
     self.reply_length=3
-    R=self.__Exchange([3])
+    R = self.__Exchange([3])
     self.Status_Byte(R)
 
-  def Go_With_Acc(self,Steps,StopCond=0): # ..............................................Command 4
-    N=int(Steps)
+  def Go_With_Acc(self, Steps, StopCond=0): #.............................................Command 4
+    N = int(Steps)
     self.__Wait_Until_Ready()
-    R=self.__Exchange([4, (N>>24)&0xFF, (N>>16)&0xFF, (N>>8)&0xFF, N&0xFF, 0])
+    R = self.__Exchange([4, (N>>24)&0xFF, (N>>16)&0xFF, (N>>8)&0xFF, N&0xFF, 0])
     self.Status_Byte(R)
 
-  def Go_No_Acc(self,Steps,StopCond=0): # ................................................Command 5
-    N=int(Steps)
+  def Go_No_Acc(self, Steps, StopCond=0): # ..............................................Command 5
+    N = int(Steps)
     self.__Wait_Until_Ready()
-    R=self.__Exchange([5, (N>>24)&0xFF, (N>>16)&0xFF, (N>>8)&0xFF, N&0xFF, 0])
+    R = self.__Exchange([5, (N>>24)&0xFF, (N>>16)&0xFF, (N>>8)&0xFF, N&0xFF, 0])
     self.Status_Byte(R)
 
-  def Set_Device_Config(self,MoveI,StopI,StopT,CFG): # ...................................Command 6
+  def Set_Device_Config(self, MoveI, StopI, StopT, CFG): # ...............................Command 6
     MoveI,StopI,StopT,CFG = int(MoveI)&0xFF, int(StopI)&0xFF, int(StopT)&0xFF, int(CFG)&0xFF
     self.__Wait_Until_Ready()
-    R=self.__Exchange([6,MoveI,StopI,StopT,CFG])
+    R = self.__Exchange([6,MoveI,StopI,StopT,CFG])
     self.Status_Byte(R)
   
-  def Set_Device_Speed(self,Vmin,Vmax,Acc): # ............................................Command 7
+  def Set_Device_Speed(self, Vmin, Vmax, Acc): # .........................................Command 7
     self.__Wait_Until_Ready()
-    R=self.__Exchange([7,(Vmin>>8)&0xFF,Vmin&0xFF,(Vmax>>8)&0xFF,Vmax&0xFF,(Acc>>8)&0xFF,Acc&0xFF])
+    R = self.__Exchange([7,(Vmin>>8)&0xFF,Vmin&0xFF,(Vmax>>8)&0xFF,Vmax&0xFF,(Acc>>8)&0xFF,Acc&0xFF])
     self.Status_Byte(R)
   
   def Immediate_Stop(self): #.............................................................Command 8 *
@@ -157,7 +150,7 @@ class Motor:
     Tmp = self.N
     self.__Wait_Until_Ready() # No answer if N=0 !!!
     self.N=0
-    self.__Exchange([21,4]) # UnBlock movement, disable broadcast
+    self.__Exchange(bytes[21,4]) # UnBlock movement, disable broadcast
     self.N = Tmp
     
   def Write_User_Data(self,data): #.......................................................Command 22
@@ -166,7 +159,7 @@ class Motor:
       D=list(S[i*8:(i+1)*8])
       if len(D)>0:
         while len(D)<8: D.extend(' ')
-        print D
+        print (D)
         P=[22,i,ord(D[0]),ord(D[1]),ord(D[2]),ord(D[3]),ord(D[4]),ord(D[5]),ord(D[6]),ord(D[7])]
         self.__Wait_Until_Ready()
         R=self.__Exchange(P)
@@ -175,13 +168,13 @@ class Motor:
         break
     
   def Read_User_Data(self): #.............................................................Command 23
-    S=''
+    S=b''
     for i in range(16):
       self.__Wait_Until_Ready()
       self.reply_length=10
       R=self.__Exchange([23,i])
       for j in range(1,9):
-        S+=chr(R[j])
+        S+=bytes([R[j]])
     return S
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -189,7 +182,7 @@ class Motor:
     READY=False
     while not READY:
       self.Get_Device_Status()
-      if self.BS.has_key('Ready'):
+      if 'Ready' in self.BS:
         READY=self.BS['Ready']
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -200,7 +193,7 @@ class Motor:
         B = f.readline()
         if not 'busy' in B:
           f.seek(0)
-          f.write('busy\n')
+          f.write(b'busy\n')
           f.truncate(5)
           break
       sleep(0.1)
@@ -208,63 +201,67 @@ class Motor:
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   def unlock(self):
-    with open('_lock_','w+b') as f: f.write('free\n')
+    with open('_lock_','w+b') as f: f.write(b'free\n')
 #    raw_input('pause 3')
 
   def __Exchange(self,BODY): # ..................................The Main Packets Exchange Algorythm
 # 1. Preparation of outgouing packet:
-    OUT, XOR = self.START + chr(self.N), self.N
+    OUT, XOR = bytes([self.START, self.N]), self.N
     for byte in BODY:
       XOR ^= byte
-      if chr(byte) in [self.START, self.STOP, self.SHIFT]:
-        OUT += self.SHIFT + chr(byte - ord(self.START))
+      if byte in [self.START, self.STOP, self.SHIFT]:
+        OUT += bytes([self.SHIFT + byte - self.START])
       else:
-        OUT += chr(byte)
-    if chr(XOR) in [self.START, self.STOP, self.SHIFT]:
-      OUT += self.SHIFT + chr(XOR - ord(self.START))
+        OUT += bytes([byte])
+    if XOR in [self.START, self.STOP, self.SHIFT]:
+      OUT += bytes([self.SHIFT + XOR - self.START])
     else:
-      OUT += chr(XOR)
-    OUT += self.STOP 
+      OUT += bytes([XOR])
+    OUT += bytes([self.STOP]) 
 # 2. Exchange:
-    if self.DEBUG: self.Show_String("OUT",OUT)
-    self.lock()
+#    print(OUT)
+#    if self.DEBUG: self.Show_String("OUT", OUt)
+#    self.lock()
     try: 
-      ser = serial.Serial(self.ioPORT, self.BR, timeout=self.timeout)
+      ser = serial.Serial(self.ioPort, self.ioRate, timeout=self.timeout)
     except serial.serialutil.SerialException:
+      print('Serial Exception', file=sys.stderr)
       return [0 for elem in range(self.reply_length)]
     ser.flushInput()
     ser.flushOutput()
     ser.write(OUT)
     PIN = ser.read(12)
+#    print(PIN)
     ser.close()
-    self.unlock()
-    if self.DEBUG: self.Show_String("REPLY",PIN)
+#    self.unlock()
+#    if self.DEBUG: self.Show_String("REPLY", PIN)
 # 3. Translating the Reply:
     REPLY = []
     if len(PIN)>1:
       shift_in_reply, XOR = 0, 0
-      PIN=PIN[0:len(PIN)-1]
-      for c in PIN:
+#      PIN = PIN[0:len(PIN)-1]
+      for c in PIN[0:-1]:
         if c==self.SHIFT:
-          shift_in_reply=ord(self.START)
+          shift_in_reply = self.START
         else:
-          REPLY.append(ord(c)+shift_in_reply)
-          XOR^=ord(c)+shift_in_reply
+          c += shift_in_reply
+          REPLY.append(c)
+          XOR ^= c
           shift_in_reply=0
 # 4. Check possible errors, if any:
       if XOR: 
-        print 'Wrong Checksum!';     self.Repeat_Last_Answer()
+        print ('Wrong Checksum!');     self.Repeat_Last_Answer()
       if REPLY[0]!=self.N: 
-        print 'Not my packet!';      self.Repeat_Last_Answer()
+        print ('Not my packet!');      self.Repeat_Last_Answer()
       if len(REPLY)!=self.reply_length: 
-        print 'Wrong Packet Length'; self.Repeat_Last_Answer()
+        print ('Wrong Packet Length'); self.Repeat_Last_Answer()
       return REPLY
     else:
       return [0 for elem in range(self.reply_length)]
 
   def Show_String(self,title,s):
-    print title + ":"
+    print(title, ' : ')
     for c in s:
-      print "Dec: %03d | Hex:%2X | Str:%1c" % (ord(c), ord(c), c)
+      print("Hex:%2X" % (ord(c)))
 
 

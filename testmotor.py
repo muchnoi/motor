@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
+
 import sys, design
 from motor import Motor
 
@@ -11,13 +13,12 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     super().__init__()
     self.setupUi(self)
     self.setWindowTitle('Stepping Motor Control Utility')
-    self.timer = QTimer()
-    self.M = Motor()
+    self.setWindowIcon(QIcon('desk.png'))
+    self.M = Motor(DEBUG=True)
     self.actionQuit.triggered.connect(self.close)
     self.actionSave.triggered.connect(self.M.Save_Data)
     self.initWidgets()
     self.ConnectDevice()
-    self.connectWidgets()
 
   def closeEvent(self, event):
     event.accept()
@@ -32,46 +33,78 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.BaudRateBox.setCurrentIndex(self.M.ioRates.index(self.M.ioRate))
     for v in self.M.Ilimits: 
       self.IMoveBox.addItem('I move = {:3.1f} A'.format(v))
-      self.IStopBox.addItem('I stop  = {:3.1f} A'.format(v))
+      self.IStopBox.addItem('I stop = {:3.1f} A'.format(v))
     for v in ['normally closed', 'normally opened']:
       self.LeftTrailerBox.addItem(  'K- ' + v)
       self.CenterTrailerBox.addItem('K0 ' + v)
       self.RightTrailerBox.addItem( 'K+ ' + v)
     self.NphaseBox.addItem('4 - phase motor')
     self.NphaseBox.addItem('8 - phase motor')
-    
-  def connectWidgets(self):  
-    self.SerialPortBox.currentIndexChanged.connect(self.ConnectDevice)
-    self.BaudRateBox.currentIndexChanged.connect(  self.ConnectDevice)
-    self.DeviceNumberBox.valueChanged.connect(     self.ConnectDevice)
-    self.StopButton.clicked.connect(self.Stop)
-    self.LeftAccButton.clicked.connect( lambda x: self.Go(True,  -1))
-    self.LeftButton.clicked.connect(    lambda x: self.Go(False, -1))
-    self.RightButton.clicked.connect(   lambda x: self.Go(False,  1))
-    self.RightAccButton.clicked.connect(lambda x: self.Go(True,   1))
-    self.CounterButton.clicked.connect(self.CounterReset)
-    self.AssignButton.clicked.connect(self.Setup)
-    self.IMoveBox.currentIndexChanged.connect(        lambda x: self.Config(reset=True))
-    self.IStopBox.currentIndexChanged.connect(        lambda x: self.Config(reset=True))
-    self.TStopBox.valueChanged.connect(               lambda x: self.Config(reset=True))
-    self.LeftTrailerBox.currentIndexChanged.connect(  lambda x: self.Config(reset=True))
-    self.CenterTrailerBox.currentIndexChanged.connect(lambda x: self.Config(reset=True))
-    self.RightTrailerBox.currentIndexChanged.connect( lambda x: self.Config(reset=True))
-    self.NphaseBox.currentIndexChanged.connect(       lambda x: self.Config(reset=True))
-    self.SoftTrailersBox.stateChanged.connect(        lambda x: self.Config(reset=True))
-    self.LeaveTrailersBox.stateChanged.connect(       lambda x: self.Config(reset=True))
-    self.AccelerateBox.stateChanged.connect(          lambda x: self.Config(reset=True))
-    self.VMinBox.valueChanged.connect(                lambda x: self.Speed( reset=True))
-    self.VMaxBox.valueChanged.connect(                lambda x: self.Speed( reset=True))
-    self.AccelerationBox.valueChanged.connect(        lambda x: self.Speed( reset=True))
-    
+    self.DebugBox.setChecked(True)
+    self.timer = QTimer()
+    self.timer.setSingleShot(True)
+    self.dt = 250
+    self.timer.setInterval(self.dt)
+    self.DebugBox.clicked.connect(                    self.DebugMode)
+    self.timer.timeout.connect(                       self.StatusFrame)
+    self.DeviceNumberBox.valueChanged.connect(        self.ConnectDevice)
+    self.SerialPortBox.currentIndexChanged.connect(   self.ConnectDevice)
+    self.BaudRateBox.currentIndexChanged.connect(     self.ConnectDevice)
+    self.StopButton.clicked.connect(                  self.Stop)
+    self.LeftAccButton.clicked.connect(     lambda x: self.Go(True,  -1))
+    self.LeftButton.clicked.connect(        lambda x: self.Go(False, -1))
+    self.RightButton.clicked.connect(       lambda x: self.Go(False,  1))
+    self.RightAccButton.clicked.connect(    lambda x: self.Go(True,   1))
+    self.CounterButton.clicked.connect(               self.CounterReset)
+    self.AssignButton.clicked.connect(                self.Setup)
+    self.IMoveBox.currentIndexChanged.connect(        self.ConfigDevice)
+    self.IStopBox.currentIndexChanged.connect(        self.ConfigDevice)
+    self.TStopBox.valueChanged.connect(               self.ConfigDevice)
+    self.LeftTrailerBox.currentIndexChanged.connect(  self.ConfigDevice)
+    self.CenterTrailerBox.currentIndexChanged.connect(self.ConfigDevice)
+    self.RightTrailerBox.currentIndexChanged.connect( self.ConfigDevice)
+    self.NphaseBox.currentIndexChanged.connect(       self.ConfigDevice)
+    self.SoftTrailersBox.stateChanged.connect(        self.ConfigDevice)
+    self.LeaveTrailersBox.stateChanged.connect(       self.ConfigDevice)
+    self.AccelerateBox.stateChanged.connect(          self.ConfigDevice)
+    self.VMinBox.valueChanged.connect(                self.Speed)
+    self.VMaxBox.valueChanged.connect(                self.Speed)
+    self.AccelerationBox.valueChanged.connect(        self.Speed)
+
+  def DebugMode(self):
+    if self.DebugBox.isChecked(): self.M.DEBUG = True
+    else:                         self.M.DEBUG = False
+  
   def Setup(self):
     self.M.N      = self.DeviceNumberBox.value()
     self.M.ioRate = self.M.ioRates[self.BaudRateBox.currentIndex()]
     self.M.Set_Logical_Address(self.SerialNumberBox.value())
-#    self.ConnectDevice()
+    self.ConnectDevice()
+
+  def ConnectDevice(self):
+    print('connect', self.sender())
+    self.M.N = self.DeviceNumberBox.value()
+    self.M.ioPort = self.M.ioPorts[self.SerialPortBox.currentIndex()]
+    self.M.ioRate = self.M.ioRates[self.BaudRateBox.currentIndex()]
+    R = self.M.Get_Device_Info()
+    Version, SN = float(R['Version']), int(R['S/N'])
+    if Version and SN:
+      self.FirmwareLabel.setStyleSheet(  self.ssb)
+      self.FirmwareLabel.setText('Firmware: {:3.1f}'.format(Version))
+      self.SerialNumberBox.setValue(SN)
+      self.ConfigDevice(reset=False)
+      self.Speed(reset=False)
+      self.M.Get_Abs_Position()
+      self.StatusFrame()
+#      self.M.Write_User_Data('motor on the window')
+#      print(self.M.Read_User_Data())
+    else:
+      self.FirmwareLabel.setStyleSheet(  self.ssa)
+      self.FirmwareLabel.setText('Firmware: None')
+      self.SerialNumberBox.setValue(0)
+      self.CounterButton.setText('Steps counter: None')
       
-  def Config(self, reset=False):
+  def ConfigDevice(self, reset=True):
     if reset:
       IMove =  self.IMoveBox.currentIndex()
       IStop =  self.IStopBox.currentIndex()
@@ -86,16 +119,16 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       CFG = CFG[0] | CFG[1]<<2 | CFG[2]<<3 | CFG[3]<<4 | CFG[4]<<5 | CFG[5]<<6 | CFG[6]<<7
       self.M.Set_Device_Config(IMove, IStop, TStop, CFG)
     R = self.M.Get_Device_Config()
-    self.IMoveBox.setCurrentIndex(R['MoveI'])
-    self.IStopBox.setCurrentIndex(R['StopI'])
-    self.TStopBox.setValue(R['StopT'])
-    self.NphaseBox.setCurrentIndex(       bool(R['CFG']&0x1))
-    self.LeftTrailerBox.setCurrentIndex(  bool(R['CFG']&0x4))
-    self.RightTrailerBox.setCurrentIndex( bool(R['CFG']&0x8))
-    self.CenterTrailerBox.setCurrentIndex(bool(R['CFG']&0x10))
-    self.SoftTrailersBox.setChecked(      bool(R['CFG']&0x20))
-    self.LeaveTrailersBox.setChecked(     bool(R['CFG']&0x40))
-    self.AccelerateBox.setChecked(        bool(R['CFG']&0x80))
+    self.assignIndex( self.IMoveBox, R['MoveI'])
+    self.assignIndex( self.IStopBox, R['StopI'])
+    self.assignValue( self.TStopBox, R['StopT'])
+    self.assignIndex( self.NphaseBox,        bool(R['CFG']&0x01))
+    self.assignIndex( self.LeftTrailerBox,   bool(R['CFG']&0x04))
+    self.assignIndex( self.RightTrailerBox,  bool(R['CFG']&0x08))
+    self.assignIndex( self.CenterTrailerBox, bool(R['CFG']&0x10))
+    self.assignStatus(self.SoftTrailersBox,  bool(R['CFG']&0x20))
+    self.assignStatus(self.LeaveTrailersBox, bool(R['CFG']&0x40))
+    self.assignStatus(self.AccelerateBox,    bool(R['CFG']&0x80))
 
   def Speed(self, reset=False):
     if reset:
@@ -104,51 +137,40 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       Acc  = self.AccelerationBox.value()
       self.M.Set_Device_Speed(Vmin, Vmax, Acc)
     R = self.M.Get_Device_Speed()
-    self.VMinBox.setValue(R['Vmin'])
-    self.VMaxBox.setValue(R['Vmax'])
-    self.AccelerationBox.setValue(R['Acc'])
+    self.assignValue(self.VMinBox,         R['Vmin'])
+    self.assignValue(self.VMaxBox,         R['Vmax'])
+    self.assignValue(self.AccelerationBox, R['Acc'])
+    self.vmin = 1.e-3*R['Vmin'] # steps/ms
+    self.vmax = 1.e-3*R['Vmax'] # steps/ms
+    self.acce = 1.e-6*R['Acc' ] # steps/ms^2
       
-      
+  def assignIndex(self, widget, index):
+    widget.blockSignals(True);  widget.setCurrentIndex(index);  widget.blockSignals(False)
+    
+  def assignValue(self, widget, value):
+    widget.blockSignals(True);  widget.setValue(value);         widget.blockSignals(False)
+
+  def assignStatus(self, widget, status):
+    widget.blockSignals(True);  widget.setChecked(status);      widget.blockSignals(False)
+
   def CounterReset(self):
     self.M.Set_Abs_Position(0)
+    self.M.Get_Abs_Position()
     self.CounterButton.setText('Steps counter: 0')
 
   def Stop(self): self.M.Immediate_Stop()
 
   def Go(self, acceleration, direction):
-    if acceleration: self.M.Go_With_Acc(direction*self.NStepsBox.value())
-    else:            self.M.Go_No_Acc(  direction*self.NStepsBox.value())
-    self.move = True
+    if acceleration: 
+      self.M.Go_With_Acc(direction*self.NStepsBox.value())
+      self.tacc = (self.vmax-self.vmin)/self.acce # acceleration time in ms
+    else:            
+      self.M.Go_No_Acc(  direction*self.NStepsBox.value())
+      self.tacc = 0.0                             # acceleration time in ms
+    self.time = 0
+    self.side = direction
+    self.StatusFrame()
   
-  def ConnectDevice(self):
-    self.move = False
-    self.M.N = self.DeviceNumberBox.value()
-    self.M.ioPort = self.M.ioPorts[self.SerialPortBox.currentIndex()]
-    self.M.ioRate = self.M.ioRates[self.BaudRateBox.currentIndex()]
-    R = self.M.Get_Device_Info()
-    Version, SN = float(R['Version']), int(R['S/N'])
-    if Version and SN:
-      self.centralwidget.blockSignals(True)
-      self.ConnectionLabel.setStyleSheet(self.ssb)
-      self.FirmwareLabel.setStyleSheet(  self.ssb)
-      self.ConnectionLabel.setText('Connection: True')
-      self.FirmwareLabel.setText('Firmware: {:3.1f}'.format(Version))
-      self.SerialNumberBox.setValue(SN)
-      self.Config(reset=False)
-      self.Speed(reset=False)
-      self.M.Get_Abs_Position()
-      self.CounterButton.setText('Steps counter: {:d}'.format(self.M.Position))
-      self.timer.start(250)
-      self.timer.timeout.connect(self.StatusFrame)
-      self.centralwidget.blockSignals(False)
-    else:
-      self.ConnectionLabel.setStyleSheet(self.ssa)
-      self.FirmwareLabel.setStyleSheet(  self.ssa)
-      self.ConnectionLabel.setText('Connection: False')
-      self.FirmwareLabel.setText('Firmware: None')
-      self.SerialNumberBox.setValue(0)
-      self.timer.stop()
-
   def StatusFrame(self):
     self.M.Get_Device_Status()
     self.TrailerPlusBox.setChecked(self.M.BS['K+'])
@@ -158,15 +180,17 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.ReadyBox.setChecked(self.M.BS['Ready'])
     self.MoveBox.setChecked(self.M.BS['Move'])
     self.AccurateBox.setChecked(self.M.BS['Accu'])
-    if self.M.BS['Ready'] and self.move:
+    if self.M.BS['Ready']:
       self.M.Get_Abs_Position()
       self.CounterButton.setText('Steps counter: {:d}'.format(self.M.Position))
-      self.move = False
-    elif self.M.BS['Move'] and not self.move:
-      self.move = True
-  
-  
-  
+    else:
+      self.timer.start()
+      self.time += self.dt
+      P = int((self.time - self.dt)*(self.vmin + self.acce*self.tacc))
+      P = self.M.Position + self.side * P
+      self.CounterButton.setText('Steps counter: {:d}'.format(P))
+
+
 def main():
   try:
     app    = QtWidgets.QApplication(sys.argv)

@@ -2,7 +2,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
-
 import sys, design
 from motor import Motor
 
@@ -43,9 +42,12 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.DebugBox.setChecked(True)
     self.timer = QTimer()
     self.timer.setSingleShot(True)
+    self.delay = QTimer()
+    self.delay.setSingleShot(True)
     self.dt = 250
     self.timer.setInterval(self.dt)
     self.DebugBox.clicked.connect(                    self.DebugMode)
+    self.delay.timeout.connect(                       self.DelayedConnectDevice)
     self.timer.timeout.connect(                       self.StatusFrame)
     self.DeviceNumberBox.valueChanged.connect(        self.ConnectDevice)
     self.SerialPortBox.currentIndexChanged.connect(   self.ConnectDevice)
@@ -82,7 +84,9 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.ConnectDevice()
 
   def ConnectDevice(self):
-    print('connect', self.sender())
+    self.delay.start(100)
+    
+  def DelayedConnectDevice(self):
     self.M.N = self.DeviceNumberBox.value()
     self.M.ioPort = self.M.ioPorts[self.SerialPortBox.currentIndex()]
     self.M.ioRate = self.M.ioRates[self.BaudRateBox.currentIndex()]

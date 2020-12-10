@@ -150,8 +150,8 @@ class Motor:
     except serial.serialutil.SerialException:
       print('Serial Exception', file=sys.stderr)
       return [0 for elem in range(rxSize)]
-#    ser.flushInput()
-#    ser.flushOutput()
+    ser.flushInput()
+    ser.flushOutput()
     ser.write(Tx)
     Rx = ser.read(25)
     ser.close()

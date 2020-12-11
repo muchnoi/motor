@@ -142,20 +142,13 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.assignValue(self.VMaxBox, R['Vmax']);  self.vmax = 1.e-3*R['Vmax'] # steps/ms
     self.assignValue(self.AcceBox, R['Acc'] );  self.acce = 1.e-6*R['Acc' ] # steps/ms^2
       
-  def assignIndex(self, widget, index):
-    widget.blockSignals(True);  widget.setCurrentIndex(index);  widget.blockSignals(False)
-    
-  def assignValue(self, widget, value):
-    widget.blockSignals(True);  widget.setValue(value);         widget.blockSignals(False)
-
-  def assignStatus(self, widget, status):
-    widget.blockSignals(True);  widget.setChecked(status);      widget.blockSignals(False)
-
   def CounterReset(self):
     self.M.Set_Abs_Position(0)
     self.StatusFrame()
 
-  def Stop(self): self.M.Immediate_Stop()
+  def Stop(self): 
+    self.M.Immediate_Stop()
+    self.StatusFrame()
 
   def Go(self, acceleration, direction):
     if acceleration: 
@@ -164,7 +157,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     else:            
       self.M.Go_No_Acc(  direction*self.NStepsBox.value())
       self.tacc = 0.0                             # acceleration time in ms
-    self.start_time = time.time()
+    self.tstart = time.time()
     self.side = direction
     self.StatusFrame()
   
@@ -181,11 +174,20 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.M.Get_Abs_Position()
       self.CounterButton.setText('Steps counter: {:d}'.format(self.M.Position))
     else:
-      t = 1000*(time.time()-self.start_time) # time from start [ms]
+      t = 1000*(time.time()-self.tstart) # time from start [ms]
       if t<self.tacc: P = self.M.Position + int(self.side*(self.vmin*t + self.acce*t*t))
       else:           P = self.M.Position + int(self.side*(self.vmin*t + self.acce*self.tacc*t))
       self.CounterButton.setText('Steps counter: {:d}'.format(P))
       self.timer.start()
+
+  def assignIndex(self, widget, index):
+    widget.blockSignals(True);  widget.setCurrentIndex(index);  widget.blockSignals(False)
+    
+  def assignValue(self, widget, value):
+    widget.blockSignals(True);  widget.setValue(value);         widget.blockSignals(False)
+
+  def assignStatus(self, widget, status):
+    widget.blockSignals(True);  widget.setChecked(status);      widget.blockSignals(False)
 
 def main():
   try:

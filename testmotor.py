@@ -130,7 +130,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.assignStatus(self.LeaveTrailersBox, bool(R['CFG']&0x40))
     self.assignStatus(self.AccelerateBox,    bool(R['CFG']&0x80))
 
-  def Speed(self, junk, reset=False):
+  def Speed(self, junk, reset=True):
     if reset:
       self.M.Set_Device_Speed(self.VMinBox.value(), self.VMaxBox.value(), self.AcceBox.value())
     R = self.M.Get_Device_Speed()

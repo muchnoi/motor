@@ -14,14 +14,14 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
     self.setupUi(self)
     self.setWindowTitle('Mirror Control')
     self.setWindowIcon(QIcon('desk.png'))
-    self.M = [Motor(ADDR=1,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False), Motor(ADDR=1,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False)]
+    self.M = [Motor(ADDR=1,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False), Motor(ADDR=2,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False)]
     self.counters = [self.YlcdNumber, self.XlcdNumber]
     self.arrows = {'UpButton'   :   [self.UpButton, 0, +1], 
                    'RightButton':[self.RightButton, 1, +1],
                    'DownButton' : [self.DownButton, 0, -1],
                    'LeftButton' : [self.LeftButton, 1, -1]}
+    self.buttons = [[self.UpButton, self.DownButton], [self.RightButton, self.LeftButton]]
     self.initWidgets()
-    self.initMotors()
 
   def closeEvent(self, event):
     event.accept()
@@ -38,53 +38,41 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
     self.LeftButton.clicked.connect(  self.Go)
     self.ResetButton.clicked.connect( self.thisisZero)
     self.ReturnButton.clicked.connect(self.returntoZero)
-    
-  def initMotors(self):
-    for name, conf in self.arrows.items():
-      self.butt, self.yorx, self.sign = conf 
-      self.butt.setStyleSheet(self.css['move'])
-      self.engn = self.M[self.yorx]
-      self.Wait()
+    self.Wait()
       
   def thisisZero(self):
     for i in [0,1]:
       self.M[i].Set_Abs_Position(0)
       self.counters[i].display(0)
-      self.Wait()
+    self.Wait()
   
   def returntoZero(self):
     for i in [0,1]:
-      self.yorx, self.engn = i, self.M[i]
-      self.engn.Get_Abs_Position()
-      if self.engn.Position<0: self.sign = +1
-      else:                    self.sign = -1
-      for k,v in self.arrows.items():
-        if v[1]==i and v[2]==self.sign:
-          self.butt = v[0]
-          self.butt.setStyleSheet(self.css['move'])
-          self.engn.Go_With_Acc(self.sign*abs(self.engn.Position))
-          self.Wait()
-          break   
+      self.M[i].Get_Abs_Position()
+      self.buttons[i][self.M[i].Position>0].setStyleSheet(self.css['move'])
+      self.M[i].Go_With_Acc(-self.M[i].Position)
+    self.Wait()
 
   def Go(self):
     sender = self.sender()
-    self.butt, self.yorx, self.sign   = self.arrows[sender.objectName()] 
-    self.butt.setStyleSheet(self.css['move'])
-    self.engn = self.M[self.yorx]
-    self.engn.Go_With_Acc(self.sign * self.StepsBox.value())
+    butt, yorx, sign   = self.arrows[sender.objectName()] 
+    butt.setStyleSheet(self.css['move'])
+    self.M[yorx].Go_With_Acc(sign * self.StepsBox.value())
     self.Wait()
     
   def Wait(self):
-    self.engn.Get_Device_Status()
-    if self.engn.BS['Ready']:                
-      self.butt.setStyleSheet(self.css['idle'])
-      self.engn.Get_Abs_Position()
-      if   self.yorx == 0: self.YlcdNumber.display(self.engn.Position)
-      elif self.yorx == 1: self.XlcdNumber.display(self.engn.Position)
-    else:
-      self.timer.start()
-    if (self.engn.BS['K+'] and self.sign>0) or (self.engn.BS['K-'] and self.sign<0): 
-      self.butt.setStyleSheet(self.css['stop'])
+    status = True
+    for i in [0,1]:
+      self.M[i].Get_Device_Status()
+      ready, trailers = self.M[i].BS['Ready'], [self.M[i].BS['K+'], self.M[i].BS['K-']]
+      if ready:
+        for j in [0,1]:
+          if trailers[j]: self.buttons[i][j].setStyleSheet(self.css['stop'])
+          else:           self.buttons[i][j].setStyleSheet(self.css['idle'])
+        self.M[i].Get_Abs_Position()
+        self.counters[i].display(self.M[i].Position)
+      status = status and ready
+    if not status: self.timer.start()
 
 def main():
   try:
@@ -99,3 +87,16 @@ def main():
 
 if __name__ == '__main__':  main()  
 
+"""
+  def Wait(self):
+    self.engn.Get_Device_Status()
+    if self.engn.BS['Ready']:                
+      self.butt.setStyleSheet(self.css['idle'])
+      self.engn.Get_Abs_Position()
+      if   self.yorx == 0: self.YlcdNumber.display(self.engn.Position)
+      elif self.yorx == 1: self.XlcdNumber.display(self.engn.Position)
+    else:
+      self.timer.start()
+    if (self.engn.BS['K+'] and self.sign>0) or (self.engn.BS['K-'] and self.sign<0): 
+      self.butt.setStyleSheet(self.css['stop'])
+"""

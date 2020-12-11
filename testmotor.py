@@ -96,7 +96,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.FirmwareLabel.setStyleSheet(  self.ssb)
       self.FirmwareLabel.setText('Firmware: {:3.1f}'.format(Version))
       self.SerialNumberBox.setValue(SN)
-      self.ConfigDevice(reset=False)
+      self.ConfigDevice(0, reset=False)
       self.Speed(reset=False)
       self.M.Get_Abs_Position()
       self.StatusFrame()
@@ -108,7 +108,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.SerialNumberBox.setValue(0)
       self.CounterButton.setText('Steps counter: None')
       
-  def ConfigDevice(self, reset=True):
+  def ConfigDevice(self, junk, reset=True):
     if reset:
       IMove =  self.IMoveBox.currentIndex()
       IStop =  self.IStopBox.currentIndex()
@@ -134,7 +134,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.assignStatus(self.LeaveTrailersBox, bool(R['CFG']&0x40))
     self.assignStatus(self.AccelerateBox,    bool(R['CFG']&0x80))
 
-  def Speed(self, reset=False):
+  def Speed(self, junk, reset=False):
     if reset:
       Vmin = self.VMinBox.value() 
       Vmax = self.VMaxBox.value()

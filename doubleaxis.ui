@@ -202,7 +202,10 @@ QLCDNumber {color: lightblue;}
         </widget>
        </item>
        <item>
-        <widget class="QLCDNumber" name="XlcdNumber">
+        <widget class="QLCDNumber" name="YlcdNumber">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="digitCount">
           <number>6</number>
          </property>
@@ -219,10 +222,7 @@ QLCDNumber {color: lightblue;}
         </widget>
        </item>
        <item>
-        <widget class="QLCDNumber" name="YlcdNumber">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
+        <widget class="QLCDNumber" name="XlcdNumber">
          <property name="digitCount">
           <number>6</number>
          </property>

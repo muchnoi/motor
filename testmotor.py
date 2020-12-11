@@ -40,12 +40,8 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.NphaseBox.addItem('4 - phase motor')
     self.NphaseBox.addItem('8 - phase motor')
     self.DebugBox.setChecked(True)
-    self.timer = QTimer()
-    self.timer.setSingleShot(True)
-    self.delay = QTimer()
-    self.delay.setSingleShot(True)
-    self.dt = 250
-    self.timer.setInterval(self.dt)
+    self.timer = QTimer(); self.timer.setSingleShot(True); self.timer.setInterval(250)
+    self.delay = QTimer(); self.delay.setSingleShot(True); self.delay.setInterval(100)
     self.DebugBox.clicked.connect(                    self.DebugMode)
     self.delay.timeout.connect(                       self.DelayedConnectDevice)
     self.timer.timeout.connect(                       self.StatusFrame)
@@ -84,7 +80,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.ConnectDevice()
 
   def ConnectDevice(self):
-    self.delay.start(100)
+    self.delay.start()
     
   def DelayedConnectDevice(self):
     self.M.N = self.DeviceNumberBox.value()

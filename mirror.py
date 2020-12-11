@@ -13,7 +13,7 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
     super().__init__()
     self.setupUi(self)
     self.setWindowTitle('Mirror Control')
-    self.setWindowIcon(QIcon('desk.png'))
+    self.setWindowIcon(QIcon('wheels.png'))
     self.M = [Motor(ADDR=1,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False), Motor(ADDR=2,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False)]
     self.counters = [self.YlcdNumber, self.XlcdNumber]
     self.arrows = {'UpButton'   :   [self.UpButton, 0, +1], 
@@ -31,37 +31,37 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
     self.timer.setSingleShot(True)
     self.timer.setInterval(200)
     self.ManualButton.setChecked(True)
-    self.timer.timeout.connect(       self.Wait)
+    self.timer.timeout.connect(       self.Status)
     self.UpButton.clicked.connect(    self.Go)
     self.RightButton.clicked.connect( self.Go)
     self.DownButton.clicked.connect(  self.Go)
     self.LeftButton.clicked.connect(  self.Go)
     self.ResetButton.clicked.connect( self.thisisZero)
     self.ReturnButton.clicked.connect(self.returntoZero)
-    self.Wait()
+    self.Status()
       
+  def Go(self):
+    sender = self.sender()
+    butt, yorx, sign   = self.arrows[sender.objectName()] 
+    butt.setStyleSheet(self.css['move'])
+    self.M[yorx].Go_With_Acc(sign * self.StepsBox.value())
+    self.Status()
+    
   def thisisZero(self):
     for i in [0,1]:
       self.M[i].Set_Abs_Position(0)
       self.counters[i].display(0)
-    self.Wait()
+    self.Status()
   
   def returntoZero(self):
     for i in [0,1]:
       self.M[i].Get_Abs_Position()
       self.buttons[i][self.M[i].Position>0].setStyleSheet(self.css['move'])
       self.M[i].Go_With_Acc(-self.M[i].Position)
-    self.Wait()
+    self.Status()
 
-  def Go(self):
-    sender = self.sender()
-    butt, yorx, sign   = self.arrows[sender.objectName()] 
-    butt.setStyleSheet(self.css['move'])
-    self.M[yorx].Go_With_Acc(sign * self.StepsBox.value())
-    self.Wait()
-    
-  def Wait(self):
-    status = True
+  def Status(self):
+    idle = True
     for i in [0,1]:
       self.M[i].Get_Device_Status()
       ready, trailers = self.M[i].BS['Ready'], [self.M[i].BS['K+'], self.M[i].BS['K-']]
@@ -71,8 +71,8 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
           else:           self.buttons[i][j].setStyleSheet(self.css['idle'])
         self.M[i].Get_Abs_Position()
         self.counters[i].display(self.M[i].Position)
-      status = status and ready
-    if not status: self.timer.start()
+      idle = idle and ready
+    if not idle: self.timer.start()
 
 def main():
   try:
@@ -87,16 +87,3 @@ def main():
 
 if __name__ == '__main__':  main()  
 
-"""
-  def Wait(self):
-    self.engn.Get_Device_Status()
-    if self.engn.BS['Ready']:                
-      self.butt.setStyleSheet(self.css['idle'])
-      self.engn.Get_Abs_Position()
-      if   self.yorx == 0: self.YlcdNumber.display(self.engn.Position)
-      elif self.yorx == 1: self.XlcdNumber.display(self.engn.Position)
-    else:
-      self.timer.start()
-    if (self.engn.BS['K+'] and self.sign>0) or (self.engn.BS['K-'] and self.sign<0): 
-      self.butt.setStyleSheet(self.css['stop'])
-"""

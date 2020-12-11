@@ -2,7 +2,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
-import sys, design
+import sys, design, time
 from motor import Motor
 
 class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
@@ -12,7 +12,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     super().__init__()
     self.setupUi(self)
     self.setWindowTitle('Stepping Motor Control Utility')
-    self.setWindowIcon(QIcon('desk.png'))
+    self.setWindowIcon(QIcon('test.png'))
     self.M = Motor(DEBUG=True)
     self.actionQuit.triggered.connect(self.close)
     self.actionSave.triggered.connect(self.M.Save_Data)
@@ -71,7 +71,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     self.AccelerateBox.stateChanged.connect(          self.ConfigDevice)
     self.VMinBox.valueChanged.connect(                self.Speed)
     self.VMaxBox.valueChanged.connect(                self.Speed)
-    self.AccelerationBox.valueChanged.connect(        self.Speed)
+    self.AcceBox.valueChanged.connect(                self.Speed)
 
   def DebugMode(self):
     if self.DebugBox.isChecked(): self.M.DEBUG = True
@@ -97,7 +97,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.FirmwareLabel.setText('Firmware: {:3.1f}'.format(Version))
       self.SerialNumberBox.setValue(SN)
       self.ConfigDevice(0, reset=False)
-      self.Speed(reset=False)
+      self.Speed(0, reset=False)
       self.M.Get_Abs_Position()
       self.StatusFrame()
 #      self.M.Write_User_Data('motor on the window')
@@ -136,17 +136,11 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
   def Speed(self, junk, reset=False):
     if reset:
-      Vmin = self.VMinBox.value() 
-      Vmax = self.VMaxBox.value()
-      Acc  = self.AccelerationBox.value()
-      self.M.Set_Device_Speed(Vmin, Vmax, Acc)
+      self.M.Set_Device_Speed(self.VMinBox.value(), self.VMaxBox.value(), self.AcceBox.value())
     R = self.M.Get_Device_Speed()
-    self.assignValue(self.VMinBox,         R['Vmin'])
-    self.assignValue(self.VMaxBox,         R['Vmax'])
-    self.assignValue(self.AccelerationBox, R['Acc'])
-    self.vmin = 1.e-3*R['Vmin'] # steps/ms
-    self.vmax = 1.e-3*R['Vmax'] # steps/ms
-    self.acce = 1.e-6*R['Acc' ] # steps/ms^2
+    self.assignValue(self.VMinBox, R['Vmin']);  self.vmin = 1.e-3*R['Vmin'] # steps/ms
+    self.assignValue(self.VMaxBox, R['Vmax']);  self.vmax = 1.e-3*R['Vmax'] # steps/ms
+    self.assignValue(self.AcceBox, R['Acc'] );  self.acce = 1.e-6*R['Acc' ] # steps/ms^2
       
   def assignIndex(self, widget, index):
     widget.blockSignals(True);  widget.setCurrentIndex(index);  widget.blockSignals(False)
@@ -159,8 +153,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
   def CounterReset(self):
     self.M.Set_Abs_Position(0)
-    self.M.Get_Abs_Position()
-    self.CounterButton.setText('Steps counter: 0')
+    self.StatusFrame()
 
   def Stop(self): self.M.Immediate_Stop()
 
@@ -171,7 +164,7 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
     else:            
       self.M.Go_No_Acc(  direction*self.NStepsBox.value())
       self.tacc = 0.0                             # acceleration time in ms
-    self.time = 0
+    self.start_time = time.time()
     self.side = direction
     self.StatusFrame()
   
@@ -188,12 +181,11 @@ class Application(QtWidgets.QMainWindow, design.Ui_MainWindow):
       self.M.Get_Abs_Position()
       self.CounterButton.setText('Steps counter: {:d}'.format(self.M.Position))
     else:
-      self.timer.start()
-      self.time += self.dt
-      P = int((self.time - self.dt)*(self.vmin + self.acce*self.tacc))
-      P = self.M.Position + self.side * P
+      t = 1000*(time.time()-self.start_time) # time from start [ms]
+      if t<self.tacc: P = self.M.Position + int(self.side*(self.vmin*t + self.acce*t*t))
+      else:           P = self.M.Position + int(self.side*(self.vmin*t + self.acce*self.tacc*t))
       self.CounterButton.setText('Steps counter: {:d}'.format(P))
-
+      self.timer.start()
 
 def main():
   try:
@@ -203,7 +195,6 @@ def main():
     app.exec_()
   except:
     window.closeEvent()
-#    window.tabs.__del__()
   print("Good Bye!", file=sys.stderr)
 
 if __name__ == '__main__':  main()  

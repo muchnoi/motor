@@ -240,7 +240,7 @@ QGroupBox#StatusGroupBox { border: 1px solid darkred; color: darkred;}</string>
         </widget>
        </item>
        <item row="0" column="3">
-        <widget class="QSpinBox" name="AccelerationBox">
+        <widget class="QSpinBox" name="AcceBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -772,7 +772,7 @@ QGroupBox#StatusGroupBox { border: 1px solid darkred; color: darkred;}</string>
   <tabstop>AssignButton</tabstop>
   <tabstop>VMinBox</tabstop>
   <tabstop>VMaxBox</tabstop>
-  <tabstop>AccelerationBox</tabstop>
+  <tabstop>AcceBox</tabstop>
   <tabstop>IMoveBox</tabstop>
   <tabstop>LeftTrailerBox</tabstop>
   <tabstop>CenterTrailerBox</tabstop>

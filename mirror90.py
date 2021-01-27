@@ -2,10 +2,10 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
-import sys, doubleaxis
+import sys, axis90
 from motor import Motor
 
-class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
+class Application(QtWidgets.QMainWindow, axis90.Ui_MainWindow):
   css = { 'idle': 'QPushButton{color: white;} QPushButton:hover{color:    yellow;} QPushButton:pressed{color: darkgreen;}',
           'move': 'QPushButton{color: green;} QPushButton:hover{color: darkgreen;} QPushButton:pressed{color: darkgreen;}',
           'stop': 'QPushButton{color:   red;} QPushButton:hover{color:   darkred;} QPushButton:pressed{color: red;}'}

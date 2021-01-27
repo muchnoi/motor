@@ -14,13 +14,13 @@ class Application(QtWidgets.QMainWindow, doubleaxis.Ui_MainWindow):
     self.setupUi(self)
     self.setWindowTitle('Mirror Control')
     self.setWindowIcon(QIcon('wheels.png'))
-    self.M = [Motor(ADDR=1,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False), Motor(ADDR=2,BaudRate=38400,ioPORT='/dev/ttyUSB0',DEBUG=False)]
+    self.M = []
+    self.M.append(Motor(ADDR=1, BaudRate=38400, ioPORT='/dev/ttyUSB0', DEBUG=False))
+    self.M.append(Motor(ADDR=2, BaudRate=38400, ioPORT='/dev/ttyUSB0', DEBUG=False))
     self.counters = [self.YlcdNumber, self.XlcdNumber]
-    self.arrows = {'UpButton'   :   [self.UpButton, 0, +1], 
-                   'RightButton':[self.RightButton, 1, +1],
-                   'DownButton' : [self.DownButton, 0, -1],
-                   'LeftButton' : [self.LeftButton, 1, -1]}
-    self.buttons = [[self.UpButton, self.DownButton], [self.RightButton, self.LeftButton]]
+    self.arrows   = {'UpButton'   :   [self.UpButton, 0, +1], 'DownButton' : [self.DownButton, 0, -1],
+                     'RightButton':[self.RightButton, 1, +1], 'LeftButton' : [self.LeftButton, 1, -1]}
+    self.buttons  = [[self.UpButton, self.DownButton], [self.RightButton, self.LeftButton]]
     self.initWidgets()
 
   def closeEvent(self, event):

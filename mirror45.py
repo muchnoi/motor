@@ -4,7 +4,6 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QIcon
 import sys, axis45
 from motor import Motor
-from time import sleep
 
 class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
   css = { 'idle': 'QPushButton{color: white;} QPushButton:hover{color:    yellow;} QPushButton:pressed{color: darkgreen;}',
@@ -16,9 +15,8 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
     self.setWindowTitle('Mirror Control')
     self.setWindowIcon(QIcon('wheels.png'))
     self.M = []
-    self.M.append(Motor(ADDR=1, BaudRate=38400, ioPORT='/dev/ttyUSB0', DEBUG=False))
-    self.M.append(Motor(ADDR=1, BaudRate=38400, ioPORT='/dev/ttyUSB0', DEBUG=False))
-    self.counters = [self.YlcdNumber, self.XlcdNumber]
+    self.M.append(Motor(ADDR=1, BaudRate=38400, ioPORT='/dev/ttyUSB1', DEBUG=False))
+    self.M.append(Motor(ADDR=2, BaudRate=38400, ioPORT='/dev/ttyUSB1', DEBUG=False))
 #   M[0] стоит слева внизу если смотреть на зеркало со стороны моторов, 
 #   если он толкает зеркало (signs = [+1, 0]), луч идет влево и вниз
 #   если он тянет зеркало   (signs = [-1, 0]), луч идет вправо и вверх
@@ -61,28 +59,24 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
         j = (1+signs[i])//2
         self.buttons[i][j].setStyleSheet(  self.css['move'])
         self.M[i].Go_With_Acc(signs[i] * self.StepsBox.value())
-        sleep(1) # !!!!!!
-    self.Status()
+    self.timer.start()
     
-  def thisisZero(self):
-    for i in [0,1]:
-      self.M[i].Set_Abs_Position(0)
-      self.counters[i].display(0)
-    self.Status()
-  
   def returntoZero(self):
     for i in [0,1]:
-      self.M[i].Get_Abs_Position()
-      self.buttons[i][self.M[i].Position>0].setStyleSheet(self.css['move'])
-      self.M[i].Go_With_Acc(-self.M[i].Position)
-      sleep(1) # !!!!!!
-    self.Status()
+      if self.M[i].Position:
+        self.buttons[i][self.M[i].Position<0].setStyleSheet(self.css['move'])
+        self.M[i].Go_With_Acc(-self.M[i].Position)
+    self.timer.start()
 
+  def thisisZero(self):
+    for i in [0,1]: self.M[i].Set_Abs_Position(0)
+    self.timer.start()
+  
   def Status(self):
     idle = True
     for i in [0,1]:
       self.M[i].Get_Device_Status()
-      ready, trailers = self.M[i].BS['Ready'], [self.M[i].BS['K+'], self.M[i].BS['K-']]
+      ready, trailers = self.M[i].BS['Ready'], [self.M[i].BS['K-'], self.M[i].BS['K+']]
       if ready:
         for j in [0,1]:
           if trailers[j]: self.buttons[i][j].setStyleSheet(self.css['stop'])
@@ -92,11 +86,9 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
     if not idle: 
       self.timer.start()
     else:
-      print(self.M[0].Position, self.M[1].Position)
-      Y = self.M[1].Position - self.M[0].Position
-      X = self.M[0].Position - self.M[1].Position
-      self.counters[0].display(Y)
-      self.counters[1].display(X)
+#     print(self.M[0].Position,  self.M[1].Position)
+      self.YlcdNumber.display((- self.M[0].Position + self.M[1].Position)//2)
+      self.XlcdNumber.display((- self.M[0].Position - self.M[1].Position)//2)
 
 def main():
   try:

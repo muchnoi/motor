@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>400</height>
+    <width>556</width>
+    <height>430</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,14 +15,8 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{background-color:black;}
-QFrame{
-    border-style: outset;
-    border-width: 2px;
-    border-radius: 10px;
-    border-color: white;
-    color: white; 
-    background-color:black;
-}
+
+
 QLCDNumber{
    color: white; 
    background-color:black; 
@@ -54,268 +48,524 @@ QPushButton {
    padding: 6px;
    font-weight: bold;
 }
+QGroupBox {
+   background-color: black;
+   color: white;
+   border-style: outset;
+   border-width: 2px;
+   border-radius: 10px;
+   border-color: white;
+   padding: 6px;
+   font-weight: bold;
+}
+QGroupBox::title {  subcontrol-origin: margin;   subcontrol-position: top center;    padding:  0px 5px;  }
+
+
 QPushButton:hover {color: yellow;}
 QLCDNumber {color: lightblue;}
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="2">
-     <widget class="QFrame" name="frame">
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QFrame" name="LeftFrame">
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Plain</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Vertical:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLCDNumber" name="YlcdNumber">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="digitCount">
-          <number>6</number>
-         </property>
-         <property name="segmentStyle">
-          <enum>QLCDNumber::Flat</enum>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Horizontal:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLCDNumber" name="XlcdNumber">
-         <property name="digitCount">
-          <number>6</number>
-         </property>
-         <property name="segmentStyle">
-          <enum>QLCDNumber::Flat</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QFrame" name="frame_3">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+      <property name="lineWidth">
+       <number>0</number>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Steps per Click</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="StepsBox">
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="LeftUpButt">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
           </font>
          </property>
-         <property name="minimum">
-          <number>1</number>
+         <property name="text">
+          <string>⬉</string>
          </property>
-         <property name="maximum">
-          <number>10000</number>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="UpButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="stepType">
-          <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
          </property>
-         <property name="value">
-          <number>16</number>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⬆</string>
+         </property>
+         <property name="shortcut">
+          <string>Up</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="RightUpButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>⬈</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="LeftButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⬅</string>
+         </property>
+         <property name="shortcut">
+          <string>Left</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QFrame" name="CountersFrame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QFrame#CountersFrame{
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: white;
+    color: white; 
+    background-color:black;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
+           <widget class="QLabel" name="label_1">
+            <property name="text">
+             <string>Vertical:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="YlcdNumber">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="digitCount">
+             <number>6</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Horizontal:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="XlcdNumber">
+            <property name="digitCount">
+             <number>6</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="RightButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>➡</string>
+         </property>
+         <property name="shortcut">
+          <string>Right</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="LeftDownButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⬋</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="DownButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⬇</string>
+         </property>
+         <property name="shortcut">
+          <string>Down</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="RightDownButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>48</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⬊</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QFrame" name="frame_2">
+    <item>
+     <widget class="QFrame" name="RightFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Plain</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>16</number>
+       </property>
        <item>
-        <widget class="QRadioButton" name="ManualButton">
+        <widget class="QGroupBox" name="StepsGroup">
+         <property name="title">
+          <string>Steps per Click</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QSpinBox" name="StepsBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+            <property name="stepType">
+             <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+            </property>
+            <property name="value">
+             <number>16</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ResetButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Manual</string>
+          <string>Reset Counters</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="AutoKeepButton">
-         <property name="text">
-          <string>Auto Keep</string>
+        <widget class="QGroupBox" name="ModeGroup">
+         <property name="title">
+          <string>Mode:</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="ManualButton">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="text">
+             <string>Manual</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="AutoKeepButton">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="text">
+             <string>Auto Keep</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="AutoScanButton">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="text">
+             <string>Auto Scan</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="AutoScanButton">
+        <widget class="QPushButton" name="ReturnButt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Auto Scan</string>
+          <string>Return to 0, 0</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="4">
-     <widget class="QPushButton" name="ReturnButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Return to 0, 0</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="4">
-     <widget class="QPushButton" name="RightButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>60</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>⬂</string>
-      </property>
-      <property name="shortcut">
-       <string>Right</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="LeftButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>60</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>⬁</string>
-      </property>
-      <property name="shortcut">
-       <string>Left</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QPushButton" name="UpButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>60</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="text">
-       <string>⬀</string>
-      </property>
-      <property name="shortcut">
-       <string>Up</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="ResetButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Counters Reset</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="DownButton">
-      <property name="font">
-       <font>
-        <pointsize>60</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>⬃</string>
-      </property>
-      <property name="shortcut">
-       <string>Down</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
- <tabstops>
-  <tabstop>ManualButton</tabstop>
-  <tabstop>AutoKeepButton</tabstop>
-  <tabstop>AutoScanButton</tabstop>
-  <tabstop>StepsBox</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>

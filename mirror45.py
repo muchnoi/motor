@@ -69,27 +69,28 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
 
   def LaserAuto(self):
     if self.AutoMode.isChecked():            # если мы в автоматическом режиме
-      self.LaserON.setEnabled(False)
-      self.LaserOFF.setEnabled(False)
-      if not self.howlong: self.howlong = 1  # если только что в него попали - начинаем считать
+      if not self.howlong:                   # если только что в него попали
+        self.LaserON.setEnabled(False)       # отключаем ручное управление
+        self.LaserOFF.setEnabled(False)      # отключаем ручное управление
+        self.howlong = 1                     # начинаем считать
       if self.LaserON.isChecked():           # если лазер включен
-        if not self.Ie():                    # а тока все нет
-          self.howlong += 1                  # думаем
+        if not self.Ie():                    # а тока нет
+          self.howlong += 1                  # думаем (продолжаем считать)
           if self.howlong > 10.:             # если нет уже давно
             self.howlong =  0                # сбрасываем счетчик
             self.LaserOFF.setChecked(True)   # выключаем лазер
-      elif self.LaserOFF.isChecked():        # если лазер выключен
+      elif self.LaserOFF.isChecked():        # если же лазер выключен
         if self.Ie():                        # а ток есть
           self.howlong += 1                  # думаем
           if self.howlong > 10.:             # если есть уже давно
             self.howlong =  0                # сбрасываем счетчик
             self.LaserON.setChecked(True)    # включаем лазер
       print(self.howlong)
-      self.t[1].start()                      # запускаем таймер
-    else:
+      self.t[1].start()                      # запускаем таймер для продолжения наблюдений
+    else:                                    # если мы в ручном режиме
       self.t[1].stop()                       # останавливаем таймер
-      self.LaserON.setEnabled(True)
-      self.LaserOFF.setEnabled(True)
+      self.LaserON.setEnabled(True)          # включаем ручное управление
+      self.LaserOFF.setEnabled(True)         # включаем ручное управление
       print ('Manual')
 
   def Ie(self):

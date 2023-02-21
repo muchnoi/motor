@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(556, 430)
+        MainWindow.resize(560, 434)
         MainWindow.setStyleSheet("QWidget{background-color:black;}\n"
 "\n"
 "\n"
@@ -30,6 +30,13 @@ class Ui_MainWindow(object):
 "   font-weight: bold;\n"
 "  }\n"
 "QRadioButton\n"
+" {\n"
+"   color: white; \n"
+"   background-color:black; \n"
+"   border-width: 0px;\n"
+"   font-weight: bold;\n"
+"  }\n"
+"QCheckBox\n"
 " {\n"
 "   color: white; \n"
 "   background-color:black; \n"
@@ -252,6 +259,7 @@ class Ui_MainWindow(object):
         self.StepsGroup = QtWidgets.QGroupBox(self.RightFrame)
         self.StepsGroup.setObjectName("StepsGroup")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.StepsGroup)
+        self.verticalLayout_3.setContentsMargins(-1, 11, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.StepsBox = QtWidgets.QSpinBox(self.StepsGroup)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
@@ -282,18 +290,22 @@ class Ui_MainWindow(object):
         self.ModeGroup.setObjectName("ModeGroup")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.ModeGroup)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.ManualButton = QtWidgets.QRadioButton(self.ModeGroup)
-        self.ManualButton.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.ManualButton.setObjectName("ManualButton")
-        self.verticalLayout_4.addWidget(self.ManualButton)
-        self.AutoKeepButton = QtWidgets.QRadioButton(self.ModeGroup)
-        self.AutoKeepButton.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.AutoKeepButton.setObjectName("AutoKeepButton")
-        self.verticalLayout_4.addWidget(self.AutoKeepButton)
-        self.AutoScanButton = QtWidgets.QRadioButton(self.ModeGroup)
-        self.AutoScanButton.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.AutoScanButton.setObjectName("AutoScanButton")
-        self.verticalLayout_4.addWidget(self.AutoScanButton)
+        self.LaserON = QtWidgets.QRadioButton(self.ModeGroup)
+        self.LaserON.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.LaserON.setObjectName("LaserON")
+        self.verticalLayout_4.addWidget(self.LaserON)
+        self.LaserOFF = QtWidgets.QRadioButton(self.ModeGroup)
+        self.LaserOFF.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.LaserOFF.setObjectName("LaserOFF")
+        self.verticalLayout_4.addWidget(self.LaserOFF)
+        self.AutoMode = QtWidgets.QCheckBox(self.ModeGroup)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.AutoMode.setFont(font)
+        self.AutoMode.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.AutoMode.setObjectName("AutoMode")
+        self.verticalLayout_4.addWidget(self.AutoMode)
         self.verticalLayout_2.addWidget(self.ModeGroup)
         self.ReturnButt = QtWidgets.QPushButton(self.RightFrame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
@@ -332,8 +344,8 @@ class Ui_MainWindow(object):
         self.RightDownButt.setText(_translate("MainWindow", "⬊"))
         self.StepsGroup.setTitle(_translate("MainWindow", "Steps per Click"))
         self.ResetButt.setText(_translate("MainWindow", "Reset Counters"))
-        self.ModeGroup.setTitle(_translate("MainWindow", "Mode:"))
-        self.ManualButton.setText(_translate("MainWindow", "Manual"))
-        self.AutoKeepButton.setText(_translate("MainWindow", "Auto Keep"))
-        self.AutoScanButton.setText(_translate("MainWindow", "Auto Scan"))
+        self.ModeGroup.setTitle(_translate("MainWindow", "Laser"))
+        self.LaserON.setText(_translate("MainWindow", "ON"))
+        self.LaserOFF.setText(_translate("MainWindow", "OFF"))
+        self.AutoMode.setText(_translate("MainWindow", "Auto"))
         self.ReturnButt.setText(_translate("MainWindow", "Return to 0, 0"))

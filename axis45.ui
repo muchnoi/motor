@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>430</height>
+    <width>560</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,13 @@ QLabel
    font-weight: bold;
   }
 QRadioButton
+ {
+   color: white; 
+   background-color:black; 
+   border-width: 0px;
+   font-weight: bold;
+  }
+QCheckBox
  {
    color: white; 
    background-color:black; 
@@ -457,6 +464,9 @@ QLCDNumber {color: lightblue;}
           <string>Steps per Click</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="topMargin">
+           <number>11</number>
+          </property>
           <item>
            <widget class="QSpinBox" name="StepsBox">
             <property name="sizePolicy">
@@ -506,36 +516,42 @@ QLCDNumber {color: lightblue;}
        <item>
         <widget class="QGroupBox" name="ModeGroup">
          <property name="title">
-          <string>Mode:</string>
+          <string>Laser</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QRadioButton" name="ManualButton">
+           <widget class="QRadioButton" name="LaserON">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
             <property name="text">
-             <string>Manual</string>
+             <string>ON</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="AutoKeepButton">
+           <widget class="QRadioButton" name="LaserOFF">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
             <property name="text">
-             <string>Auto Keep</string>
+             <string>OFF</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="AutoScanButton">
+           <widget class="QCheckBox" name="AutoMode">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
             <property name="text">
-             <string>Auto Scan</string>
+             <string>Auto</string>
             </property>
            </widget>
           </item>

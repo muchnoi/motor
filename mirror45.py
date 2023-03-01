@@ -16,11 +16,11 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
     self.setWindowTitle('Mirror Control')
     self.setWindowIcon(QIcon('wheels.png'))
     self.M = []
-    self.M.append(Motor(ADDR=1, BaudRate=38400, ioPORT='/dev/ttyUSB1', DEBUG=False))
-    self.M.append(Motor(ADDR=2, BaudRate=38400, ioPORT='/dev/ttyUSB1', DEBUG=False))
+    self.M.append(Motor(ADDR=1, BaudRate=19200, ioPORT='/dev/Motors', DEBUG=False))
+    self.M.append(Motor(ADDR=2, BaudRate=19200, ioPORT='/dev/Motors', DEBUG=False))
 #   Мотор и количество шагов для поворота измерителя мощности на 90 градусов:
-    self.PowMet = Motor(ADDR=5, BaudRate=38400, ioPORT='/dev/ttyUSB1', DEBUG=False)
-    self.Turn   = 36
+    self.PowMet = Motor(ADDR=5, BaudRate=19200, ioPORT='/dev/Motors', DEBUG=False)
+    self.Turn   = 200
 #   M[0] стоит слева внизу если смотреть на зеркало со стороны моторов,
 #   если он толкает зеркало (signs = [+1, 0]), луч идет влево и вниз
 #   если он тянет зеркало   (signs = [-1, 0]), луч идет вправо и вверх
@@ -49,7 +49,9 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
     self.t[0].setInterval(200);                self.t[1].setInterval(2000)
     self.t[0].timeout.connect(self.Status);    self.t[1].timeout.connect(self.LaserAuto)
     for name, content in self.arrows.items():  content[0].clicked.connect(self.Go)
-    self.LaserON.setChecked(True)
+    self.PowMet.Get_Abs_Position()
+    if self.PowMet.Position==-self.Turn: self.LaserON.setChecked(True)
+    elif self.PowMet.Position==0:        self.LaserOFF.setChecked(True)
     self.LaserON.toggled.connect( self.LaserControl)
     self.AutoMode.toggled.connect(self.LaserAuto); self.howlong = 0
     self.ResetButt.clicked.connect( self.thisisZero)
@@ -57,12 +59,13 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
 #    self.Status()
 
   def LaserControl(self):
+    self.PowMet.Get_Abs_Position()
     if self.LaserON.isChecked():
-      print ('turn -')#      self.PowMet.Go_With_Acc(-self.Turn)
+      if self.PowMet.Position==0: self.PowMet.Go_With_Acc(-self.Turn)
       for v in self.arrows.values():
         v[0].setStyleSheet(self.css['idle']); v[0].setEnabled(True)
     else:
-      print ('turn +')#      self.PowMet.Go_With_Acc(+self.Turn)
+      if self.PowMet.Position==-self.Turn: self.PowMet.Go_With_Acc(self.Turn)
       for v in self.arrows.values():
         v[0].setStyleSheet(self.css['wait']); v[0].setEnabled(False)
         self.t[0].stop()

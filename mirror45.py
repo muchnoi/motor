@@ -82,22 +82,26 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
           if self.howlong > 10.:             # если нет уже давно
             self.howlong =  0                # сбрасываем счетчик
             self.LaserOFF.setChecked(True)   # выключаем лазер
+            print('Turn laser OFF')
       elif self.LaserOFF.isChecked():        # если же лазер выключен
         if self.Ie():                        # а ток есть
           self.howlong += 1                  # думаем
           if self.howlong > 10.:             # если есть уже давно
             self.howlong =  0                # сбрасываем счетчик
             self.LaserON.setChecked(True)    # включаем лазер
-      print(self.howlong)
+            print('Turn laser ON')
+#      print(self.howlong)
       self.t[1].start()                      # запускаем таймер для продолжения наблюдений
     else:                                    # если мы в ручном режиме
       self.t[1].stop()                       # останавливаем таймер
       self.LaserON.setEnabled(True)          # включаем ручное управление
       self.LaserOFF.setEnabled(True)         # включаем ручное управление
-      print ('Manual')
 
   def Ie(self):
-    return False
+    with open('/home/ems/Acquisition/VEPP2K.status') as fp: S = fp.readlines()
+    Ie = float(S[0].split()[2])
+    if Ie > 10.: return True
+    else:        return False
 
   def Go(self):
     name = self.sender().objectName()
@@ -135,8 +139,11 @@ class Application(QtWidgets.QMainWindow, axis45.Ui_MainWindow):
       self.t[0].start()
     else:
 #     print(self.M[0].Position,  self.M[1].Position)
-      self.YlcdNumber.display((- self.M[0].Position + self.M[1].Position)//2)
-      self.XlcdNumber.display((- self.M[0].Position - self.M[1].Position)//2)
+#      self.YlcdNumber.display((- self.M[0].Position + self.M[1].Position)//2)
+#      self.XlcdNumber.display((- self.M[0].Position - self.M[1].Position)//2)
+      self.YlcdNumber.display(-int(4.37*(self.M[0].Position - self.M[1].Position))) # this is um
+      self.XlcdNumber.display(-int(4.37*(self.M[0].Position + self.M[1].Position))) # this is um
+      
 
 def main():
   try:

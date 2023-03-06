@@ -266,7 +266,7 @@ QLCDNumber {color: lightblue;}
           <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
            <widget class="QLabel" name="label_1">
             <property name="text">
-             <string>Vertical:</string>
+             <string>Y, [μm]</string>
             </property>
            </widget>
           </item>
@@ -286,7 +286,7 @@ QLCDNumber {color: lightblue;}
           <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Horizontal:</string>
+             <string>X, [μm]</string>
             </property>
            </widget>
           </item>
@@ -461,7 +461,7 @@ QLCDNumber {color: lightblue;}
        <item>
         <widget class="QGroupBox" name="StepsGroup">
          <property name="title">
-          <string>Steps per Click</string>
+          <string>Steps / Click</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="topMargin">
@@ -493,7 +493,7 @@ QLCDNumber {color: lightblue;}
              <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
             </property>
             <property name="value">
-             <number>16</number>
+             <number>57</number>
             </property>
            </widget>
           </item>
